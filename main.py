@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 from config_data.config import Config, load_config
 from keyboards.set_menu import set_main_menu
 from handlers.admin_handlers import router
+from database.database import db_start
 
 
 async def main():
@@ -15,6 +16,8 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
+
+    db_start(config.db.database)
 
     await set_main_menu(bot)
 

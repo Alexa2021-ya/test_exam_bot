@@ -3,6 +3,30 @@ from lexicon.lexicon_ru import LEXICON_RU
 from services.sheets import get_data
 
 
+def db_start(database: str):
+    conn = create_connection(database)
+    cursor = conn.cursor()
+
+    create_table_query = '''
+    CREATE TABLE IF NOT EXISTS data_tasks (
+        id INTEGER PRIMARY KEY,
+        task_number INTEGER,
+        task_theme TEXT,
+        task_text TEXT,
+        task_image TEXT,
+        task_answer REAL,
+        task_solution TEXT,
+        photo_task TEXT,
+        photo_solution TEXT
+    )
+    '''
+
+    cursor.execute(create_table_query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
 def create_connection(database: str):
     conn = sqlite3.connect(database)
     return conn
