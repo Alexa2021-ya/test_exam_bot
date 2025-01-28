@@ -3,7 +3,7 @@ from lexicon.lexicon_ru import LEXICON_RU
 from services.sheets import get_data
 
 
-def db_start(database: str):
+async def db_start(database: str):
     conn = create_connection(database)
     cursor = conn.cursor()
 

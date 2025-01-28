@@ -17,7 +17,7 @@ async def main():
     )
     dp = Dispatcher()
 
-    db_start(config.db.database)
+    await db_start(config.db.database)
 
     await set_main_menu(bot)
 
