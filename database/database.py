@@ -1,6 +1,7 @@
 import sqlite3
 from lexicon.lexicon_ru import LEXICON_RU
 from services.sheets import get_data
+from utils import save_image
 
 
 async def db_start(database: str):
@@ -32,7 +33,7 @@ def create_connection(database: str):
     return conn
 
 
-def load_data_tasks(database, google_sheet_key: str):
+def load_data_tasks(database: str, google_sheet_key: str, path_images: str):
     conn = create_connection(database)
     count_before = get_record_count(conn)
 
@@ -43,6 +44,12 @@ def load_data_tasks(database, google_sheet_key: str):
              '(id, task_number, task_theme, task_text, task_image, '
              'task_answer, task_solution, photo_task, photo_solution) '
              'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+
+    for row in data[1:]:
+        #task_image
+        if row[4]:
+            row[4] = save_image(row[4], row[0], path_images)
+
 
     cursor.executemany(query, data[1:])
     conn.commit()

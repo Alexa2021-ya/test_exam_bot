@@ -23,7 +23,9 @@ async def main():
 
     dp.include_router(router)
 
-    dp.workflow_data.update({'database': config.db.database, 'google_sheet_key': config.google_sheet.key})
+    dp.workflow_data.update({'database': config.db.database,
+                             'google_sheet_key': config.google_sheet.key,
+                             'path_images': config.tasks_directory})
 
     await dp.start_polling(bot)
 

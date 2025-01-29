@@ -7,5 +7,5 @@ router = Router()
 
 
 @router.message(Command(commands=['load_tasks_from_googlesheets']))
-async def send_echo(message: Message, database, google_sheet_key):
-    await message.answer(load_data_tasks(database, google_sheet_key))
+async def send_echo(message: Message, database, google_sheet_key, path_images):
+    await message.answer(load_data_tasks(database, google_sheet_key, path_images))

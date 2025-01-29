@@ -15,12 +15,13 @@ class TgBot:
 class GoogleSheet:
     key: str
 
+
 @dataclass
 class Config:
     tg_bot: TgBot
     db: DatabaseConfig
     google_sheet: str
-
+    tasks_directory: str
 
 
 def load_config(path: str | None = None) -> Config:
@@ -37,4 +38,5 @@ def load_config(path: str | None = None) -> Config:
         google_sheet=GoogleSheet(
             key=env('GOOGLE_SHEET_KEY')
         ),
+        tasks_directory=env('TASKS_DIRECTORY'),
     )
