@@ -50,7 +50,6 @@ def load_data_tasks(database: str, google_sheet_key: str, path_images: str):
         if row[4]:
             row[4] = save_image(row[4], row[0], path_images)
 
-
     cursor.executemany(query, data[1:])
     conn.commit()
 

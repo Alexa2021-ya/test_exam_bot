@@ -3,10 +3,5 @@
 .mypy_cache/
 .vscode/
 venv/
-<<<<<<< HEAD
-__pycache__/
-resourses/
-=======
 *.db
 __pycache__/
->>>>>>> 21aebf19b31d2a143057f6cb267092240973d3cf
