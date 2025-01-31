@@ -13,6 +13,10 @@ def generate_latex_image(latex_text: str, output_path: str, filename: str, max_w
     create_directory(output_path)
     file_path = os.path.join(output_path, filename)
 
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')  # Устанавливаем шрифт
+    plt.rc('text.latex', preamble=r'\usepackage[utf8]{inputenc}\usepackage[russian]{babel}')
+
     # Разделяем текст по существующим переносам строк
     lines = latex_text.split('\n')
     wrapped_lines = []
@@ -33,7 +37,7 @@ def generate_latex_image(latex_text: str, output_path: str, filename: str, max_w
 
     # Попробуем использовать MathText для математических символов
     try:
-        ax.text(0.5, 0.5, wrapped_text, fontsize=12, ha='center', va='center', usetex=False)
+        ax.text(0.5, 0.5, wrapped_text, fontsize=12, ha='center', va='center')
     except Exception as e:
         logging.error(f"Ошибка при обработке MathText: {e}")
 
