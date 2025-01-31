@@ -22,6 +22,7 @@ class Config:
     db: DatabaseConfig
     google_sheet: str
     tasks_directory: str
+    template_json_path: str
 
 
 def load_config(path: str | None = None) -> Config:
@@ -39,4 +40,5 @@ def load_config(path: str | None = None) -> Config:
             key=env('GOOGLE_SHEET_KEY')
         ),
         tasks_directory=env('TASKS_DIRECTORY'),
+        template_json_path=env('TEMPLATE_JSON_PATH'),
     )

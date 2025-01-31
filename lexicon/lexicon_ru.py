@@ -1,5 +1,6 @@
 LEXICON_COMMANDS_RU: dict[str, str] = {
     '/load_tasks_from_googlesheets': 'загрузить бд',
+    '/generation_image_tasks' : 'сгенерировать изображения заданий',
 }
 
 LEXICON_RU: dict[str, str] = {

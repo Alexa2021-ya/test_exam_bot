@@ -2,18 +2,13 @@ import os
 import urllib.request
 import logging
 import re
+from utils.create_directory import create_directory
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def create_directory(dir_name: str):
-    main_directory = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(main_directory, dir_name)
-    os.makedirs(path, exist_ok=True)
-    logging.info(f'Создана директория: {path}')
-
-
-def generate_image_name(image_id: int):
+def generate_image_name_for_task_image(image_id: int):
     return f'task_image_id_{image_id}.png'
 
 
@@ -37,7 +32,7 @@ def save_image(url: str, image_id: int, path: str) -> str:
     create_directory(path)
 
     image_url = generate_url_for_download(url)
-    file_name = generate_image_name(image_id)
+    file_name = generate_image_name_for_task_image(image_id)
     file_path = os.path.join(path, file_name)
 
     logo = urllib.request.urlopen(image_url).read()

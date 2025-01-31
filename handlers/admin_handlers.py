@@ -1,11 +1,16 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-from database.database import load_data_tasks
+from database.database import load_data_tasks, select_data_for_tasks
 
 router = Router()
 
 
 @router.message(Command(commands=['load_tasks_from_googlesheets']))
-async def send_echo(message: Message, database, google_sheet_key, path_images):
+async def load_tasks_from_google_sheets(message: Message, database, google_sheet_key, path_images):
     await message.answer(load_data_tasks(database, google_sheet_key, path_images))
+
+
+@router.message(Command(commands=['generation_image_tasks']))
+async def generate_tasks_images(message: Message, database, path_images, template_json_path):
+    await select_data_for_tasks(database, path_images, template_json_path)

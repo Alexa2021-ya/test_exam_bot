@@ -25,7 +25,8 @@ async def main():
 
     dp.workflow_data.update({'database': config.db.database,
                              'google_sheet_key': config.google_sheet.key,
-                             'path_images': config.tasks_directory})
+                             'path_images': config.tasks_directory,
+                             'template_json_path': config.template_json_path})
 
     await dp.start_polling(bot)
 

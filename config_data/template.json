@@ -1,0 +1,13 @@
+{
+    "TEXT_COLOR": "#67A9FF",
+    "TOP_MARGIN": 106,
+    "BOTTOM_MARGIN": 97,
+    "FONT_SIZE_NUMBER": 96,
+    "FONT_SIZE_ID": 48,
+    "FONT_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\fonts\\Inter-ExtraBold.ttf",
+    "TEMPLATE_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\template.png",
+    "TEXT_POSITION_NUMBER_X": 49,
+    "MAX_TEXT_WIDTH_NUMBER": 174,
+    "MAX_TEXT_WIDTH_ID": 111,
+    "MAX_MATHTEXT_WIDTH": 100
+}

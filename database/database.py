@@ -1,7 +1,8 @@
 import sqlite3
 from lexicon.lexicon_ru import LEXICON_RU
 from services.sheets import get_data
-from utils import save_image
+from utils.image_downloader import save_image
+from utils.task_image_creator import generate_task_images_with_template
 
 
 async def db_start(database: str):
@@ -69,3 +70,43 @@ def get_record_count(conn):
     count = cursor.fetchone()[0]
     cursor.close()
     return count
+
+
+def extract_data_as_dicts(tuple_list, keys):
+    return [dict(zip(keys, item)) for item in tuple_list]
+
+
+async def select_data_for_tasks(database: str, path_images: str, template_json_path: str):
+    conn = create_connection(database)
+    cursor = conn.cursor()
+
+    columns = ['id', 'task_number', 'task_text', 'task_image', 'task_solution', 'photo_task', 'photo_solution']
+
+    query = f'SELECT {", ".join(columns)} FROM data_tasks'
+
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    new_data = generate_task_images_with_template(extract_data_as_dicts(results, columns), path_images, template_json_path)
+    update_tasks_in_database(database, new_data)
+
+
+def update_tasks_in_database(database: str, updated_data: list):
+    conn = create_connection(database)
+    cursor = conn.cursor()
+
+    # Подготовим запрос на обновление
+    update_query = '''
+    UPDATE data_tasks
+    SET photo_task = ?, photo_solution = ?
+    WHERE id = ?
+    '''
+
+    for task in updated_data:
+        cursor.execute(update_query, (task['photo_task'], task['photo_solution'], task['id']))
+
+    # Сохраняем изменения
+    conn.commit()
+    # Закрываем соединение
+    cursor.close()
+    conn.close()
