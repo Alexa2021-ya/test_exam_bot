@@ -61,7 +61,7 @@ def build_final_image_from_template(id_task, task_number, img1_path, output_path
     # Добавляем текст #id4 в левом нижнем углу
     id_text = f'#id{id_task}'
     id_font = adjust_font_size_for_text(draw, id_text, config['MAX_TEXT_WIDTH_ID'], config['FONT_SIZE_ID'], config['FONT_PATH'])
-    TEXT_POSITION_ID_Y = height - config['BOTTOM_MARGIN'] + 8
+    TEXT_POSITION_ID_Y = height - config['BOTTOM_MARGIN'] + config['MARGIN_BOTTOM_ID']
     add_text(draw, id_text, (config['TEXT_POSITION_NUMBER_X'], TEXT_POSITION_ID_Y), id_font, config['TEXT_COLOR'])
 
     # Рассчитываем доступную высоту для изображений
@@ -73,21 +73,21 @@ def build_final_image_from_template(id_task, task_number, img1_path, output_path
 
     # Если первое изображение существует, мы его масштабируем
     if img1:
-        img1 = resize_image(img1, (width - 40) // 2, available_height)
+        img1 = resize_image(img1, (width - config['MARGIN_LEFT_RIGHT']) // 2, available_height)
 
     # Если второе изображение существует, мы его масштабируем
     if img2:
-        img2 = resize_image(img2, (width - 40) // 2, available_height)
+        img2 = resize_image(img2, (width - config['MARGIN_LEFT_RIGHT']) // 2, available_height)
 
     # Позиции для изображений
     if img1 and img2:
-        y = (height - max(img1.height, img2.height)) // 2
-        x1 = (width - img1.width - img2.width - 20) // 2
-        x2 = x1 + img1.width + 20
+        y = (height - max(img1.height, img2.height)) // 2 + config['MARGIN_TOP_BOTTOM']
+        x1 = (width - img1.width - img2.width - config['MARGIN_LEFT_RIGHT']) // 2
+        x2 = x1 + img1.width + config['MARGIN_LEFT_RIGHT']
         template.paste(img1, (x1, y), img1)
         template.paste(img2, (x2, y + (img1.height - img2.height) // 2), img2)  # Центрируем img2 по высоте относительно img1
     elif img1:
-        img1 = resize_image(img1, width - 40, available_height)
+        img1 = resize_image(img1, width - config['MARGIN_LEFT_RIGHT'], available_height)
         x = (width - img1.width) // 2
         y = (height - img1.height) // 2
         template.paste(img1, (x, y), img1)

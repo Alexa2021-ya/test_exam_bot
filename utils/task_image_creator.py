@@ -15,7 +15,7 @@ def generate_latex_image(latex_text: str, output_path: str, filename: str, max_w
 
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')  # Устанавливаем шрифт
-    plt.rc('text.latex', preamble=r'\usepackage[utf8]{inputenc}\usepackage[russian]{babel}')
+    plt.rc('text.latex', preamble=r'\usepackage[utf8]{inputenc}\usepackage[russian]{babel}\usepackage{amsmath}')
 
     # Разделяем текст по существующим переносам строк
     lines = latex_text.split('\n')
@@ -35,19 +35,20 @@ def generate_latex_image(latex_text: str, output_path: str, filename: str, max_w
     ax.set_facecolor('none')  # Установка цвета фона оси на прозрачный
     ax.axis('off')
 
-    # Попробуем использовать MathText для математических символов
-    try:
-        ax.text(0.5, 0.5, wrapped_text, fontsize=12, ha='center', va='center')
-    except Exception as e:
-        logging.error(f"Ошибка при обработке MathText: {e}")
+    # Устанавливаем максимальную ширину текста
+    ax.text(0.5, 0.5, rf'{wrapped_text}', fontsize=12, ha='center', va='center', wrap=True)
 
-    # Сохранение изображения с прозрачным фоном
-    plt.savefig(file_path, bbox_inches='tight', dpi=300, transparent=True)
-    plt.close(fig)
+    try:
+        # Сохранение изображения с прозрачным фоном
+        plt.savefig(file_path, bbox_inches='tight', dpi=300, transparent=True)
+        plt.close(fig)
+    except Exception as e:
+        logging.error(f"Ошибка при сохранении MathText: {e}")
 
     logging.info(f"Изображение сохранено по пути: {file_path}")
 
     return file_path
+
 
 
 def generate_task_images_with_template(data: list[dict], dir_name: str, template_json_path: str):
