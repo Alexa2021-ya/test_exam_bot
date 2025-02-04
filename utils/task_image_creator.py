@@ -25,8 +25,12 @@ def fit_text_to_area(latex_text: str, initial_fontsize: float, area_width: float
         wrapped_lines = []
 
         for line in existing_lines:
-            # Обработка каждой строки с учетом ширины
-            wrapped_lines.extend(textwrap.wrap(line, width=100))  # Добавляем новые переносы
+            if line.strip():  # Если строка не пустая
+                # Обработка каждой непустой строки с учетом ширины
+                wrapped_lines.extend(textwrap.wrap(line, width=100))
+            else:
+                # Сохраняем пустую строку
+                wrapped_lines.append('')
 
         wrapped_text = '\n'.join(wrapped_lines)
 
