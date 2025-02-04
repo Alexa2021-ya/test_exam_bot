@@ -2,7 +2,8 @@
     "TEXT_COLOR": "#67A9FF",
     "TOP_MARGIN": 120,
     "BOTTOM_MARGIN": 97,
-    "FONT_SIZE_NUMBER": 96,
+    "FONT_SIZE_NUMBER_FOR_TEMPLATE": 96,
+    "FONT_SIZE_NUMBER_FOR_TASK_TEXT": 25,
     "FONT_SIZE_ID": 48,
     "FONT_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\fonts\\Inter-ExtraBold.ttf",
     "TEMPLATE_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\template.png",
@@ -10,7 +11,21 @@
     "MAX_TEXT_WIDTH_NUMBER": 174,
     "MAX_TEXT_WIDTH_ID": 111,
     "MAX_MATHTEXT_WIDTH": 100,
-    "MARGIN_LEFT_RIGHT": 40,
-    "MARGIN_TOP_BOTTOM": 20,
-    "MARGIN_BOTTOM_ID": 8
+    "MARGIN_BOTTOM_ID": 8,
+    "IMG1_X_POSITION": 49,
+    "IMG1_Y_POSITION": 106,
+    "IMG2_OFFSET_RIGHT": 78,
+    "IMG2_Y_POSITION": 136,
+    "LATEX": {
+        "USE_TEX": true,
+        "FONT_FAMILY": "serif",
+        "PREAMBLE": [
+            "\\usepackage[utf8]{inputenc}",
+            "\\usepackage[russian]{babel}",
+            "\\usepackage{amsmath}"
+        ],
+        "FIGURE_WIDTH": 1200,
+        "FIGURE_HEIGHT": 458,
+        "DPI": 100
+    }
 }
