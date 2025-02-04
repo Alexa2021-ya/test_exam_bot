@@ -3,7 +3,7 @@
     "TOP_MARGIN": 120,
     "BOTTOM_MARGIN": 97,
     "FONT_SIZE_NUMBER_FOR_TEMPLATE": 96,
-    "FONT_SIZE_NUMBER_FOR_TASK_TEXT": 25,
+    "FONT_SIZE_NUMBER_FOR_TASK_TEXT": 23,
     "FONT_SIZE_ID": 48,
     "FONT_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\fonts\\Inter-ExtraBold.ttf",
     "TEMPLATE_PATH": "C:\\Users\\User\\Desktop\\Папка\\bot_ege\\resources\\template.png",
@@ -13,7 +13,7 @@
     "MAX_MATHTEXT_WIDTH": 100,
     "MARGIN_BOTTOM_ID": 8,
     "IMG1_X_POSITION": 49,
-    "IMG1_Y_POSITION": 106,
+    "IMG1_Y_POSITION": 126,
     "IMG2_OFFSET_RIGHT": 78,
     "IMG2_Y_POSITION": 136,
     "LATEX": {

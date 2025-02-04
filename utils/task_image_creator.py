@@ -20,8 +20,14 @@ def fit_text_to_area(latex_text: str, initial_fontsize: float, area_width: float
         fig, ax = plt.subplots(figsize=(area_width, area_height))
         ax.axis('off')
 
-        # Добавление текста с учетом существующих переносов
-        wrapped_lines = textwrap.wrap(latex_text, width=100)  # Добавляем новые переносы
+        # Разделение текста на строки, чтобы сохранить существующие переносы
+        existing_lines = latex_text.splitlines()
+        wrapped_lines = []
+
+        for line in existing_lines:
+            # Обработка каждой строки с учетом ширины
+            wrapped_lines.extend(textwrap.wrap(line, width=100))  # Добавляем новые переносы
+
         wrapped_text = '\n'.join(wrapped_lines)
 
         # Добавление текста
