@@ -1,7 +1,6 @@
-from PIL import Image, ImageDraw, ImageFont
 import logging
+from PIL import Image, ImageDraw, ImageFont
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def load_font(size, font_path):
@@ -12,65 +11,97 @@ def load_font(size, font_path):
         logging.error(f"Ошибка загрузки шрифта: {e}")
         return ImageFont.load_default()
 
-def add_text(draw, text, position, font, text_color):
-    """Добавить текст на изображение."""
-    draw.text(position, text, fill=text_color, font=font)
+def load_image_with_transparency(image_path):
+    """Загружает изображение и делает белый фон прозрачным."""
+    img = Image.open(image_path).convert("RGBA")
+    datas = img.getdata()
+    new_data = []
+    for item in datas:
+        if item[0] > 200 and item[1] > 200 and item[2] > 200:  # белый фон
+            new_data.append((255, 255, 255, 0))  # Сделать прозрачным
+        else:
+            new_data.append(item)
+    img.putdata(new_data)
+    return img
 
-def adjust_font_size_for_text(draw, text, max_width, initial_font_size, font_path):
-    """Настроить размер шрифта, чтобы текст не выходил за максимальную ширину."""
-    font_size = initial_font_size
-    font = load_font(font_size, font_path)
-
-    # Проверяем, вмещается ли текст
-    while draw.textbbox((0, 0), text, font=font)[2] > max_width and font_size > 1:
-        font_size -= 1
-        font = load_font(font_size, font_path)
-
-    return font
-
-def build_final_image_from_template(id_task, task_number, img1_path, output_path, config, img2_path=None):
-    # Открываем шаблон
-    template = Image.open(config['TEMPLATE_PATH']).convert("RGBA")
-    draw = ImageDraw.Draw(template)
-
-    # Получаем размеры шаблона
-    width, height = template.size
-
-    # Настраиваем шрифт для номера задания
-    text_number = f"№{task_number}"
-    font_number = adjust_font_size_for_text(draw, text_number, config['MAX_TEXT_WIDTH_NUMBER'], config['FONT_SIZE_NUMBER_FOR_TEMPLATE'], config['FONT_PATH'])
-
-    # Добавляем текст с номером
-    add_text(draw, text_number, (config['TEXT_POSITION_NUMBER_X'], 33), font_number, config['TEXT_COLOR'])
-
-    # Добавляем текст #id в левом нижнем углу
-    id_text = f'#id{id_task}'
-    id_font = adjust_font_size_for_text(draw, id_text, config['MAX_TEXT_WIDTH_ID'], config['FONT_SIZE_ID'], config['FONT_PATH'])
-    TEXT_POSITION_ID_Y = height - config['BOTTOM_MARGIN'] + config['MARGIN_BOTTOM_ID']
-    add_text(draw, id_text, (config['TEXT_POSITION_NUMBER_X'], TEXT_POSITION_ID_Y), id_font, config['TEXT_COLOR'])
-
-    # Вставка первого изображения без изменения размера
-    img1 = Image.open(img1_path).convert("RGBA") if img1_path else None
-
-    # Если первое изображение существует, мы его вставляем без изменения размера
-    if img1:
-        x1 = config['IMG1_X_POSITION']  # Отступ от левого края
-        y1 = config['IMG1_Y_POSITION']  # Отступ от верхнего края
-        logging.info(f"Вставка изображения img1 с размерами: {img1.size}, позиции: {(x1, y1)}")
-        template.paste(img1, (x1, y1), img1)
-
-    # Вставка второго изображения без изменения размера
-    img2 = Image.open(img2_path).convert("RGBA") if img2_path else None
-
-    # Если второе изображение существует, мы его вставляем без изменения размера
+def calculate_new_height(img1, img2=None, config=None):
+    """Вычисляет новую высоту изображения с учетом отступов."""
+    input_height = img1.height
     if img2:
-        x2 = width - img2.width - config['IMG2_OFFSET_RIGHT']  # Отступ от правого края
-        y2 = config['IMG2_Y_POSITION']  # Отступ от верхнего края
-        logging.info(f"Вставка изображения img2 с размерами: {img2.size}, позиции: {(x2, y2)}")
-        template.paste(img2, (x2, y2), img2)
+        input_height += img2.height
+    return max(input_height, config["MIN_HEIGHT"] - config["TOP_PADDING"] - config["BOTTOM_PADDING"])
 
-    # Сохраняем результат
-    template.save(output_path, quality=95)
-    logging.info(f"Изображение сохранено как {output_path}")
+def create_base_image(input_height, config):
+    """Создает новое изображение с белым фоном."""
+    new_height = config["TOP_PADDING"] + config["BOTTOM_PADDING"] + input_height
+    return Image.new('RGB', (config["NEW_WIDTH"], new_height), 'white'), new_height
+
+def draw_text(draw, new_image, font_bot, font_number, font_tg, task_number, id_task, logo_x, new_height, config):
+    """Рисует текст на новом изображении."""
+    draw.text((config["TITLE_TEXT_X"], config["TITLE_TEXT_Y"]), config["TITLE_TEXT"], font=font_bot, fill=config["COLOR_TITLE"])
+    draw.text((config["NUMBER_TEXT_X"], config["NUMBER_TEXT_Y"]), f"№{task_number}", font=font_number, fill=config["COLOR_TITLE"])
+    draw.text((config["ID_TEXT_X"], new_height - config["ID_TEXT_Y_OFFSET"]), f"#{id_task}", font=font_tg, fill=config["COLOR_ID"])
+
+def add_logo(new_image, new_height, config):
+    """Добавляет логотип на новое изображение."""
+    logo = load_image_with_transparency(config["LOGO_PATH"])
+    logo = logo.resize((152, 152))
+    logo_x = config["NEW_WIDTH"] - 78 - logo.width
+    logo_y = new_height - config["LOGO_Y_OFFSET"] - logo.height
+    new_image.paste(logo, (logo_x, logo_y), logo)
+    return logo_x
+
+def draw_rotated_text(draw, new_image, text, new_height, config):
+    """Рисует повернутый текст на новом изображении."""
+    text_bbox = draw.textbbox((0, 0), text, font=load_font(config["FONT_TG_SIZE"], config["FONT_PATH"]))
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+
+    for y_offset in range(172, new_height - config["BOTTOM_PADDING"], int(154.43)):
+        text_image_rotated = Image.new('RGBA', (text_width, text_height), (255, 255, 255, 0))
+        text_draw_rotated = ImageDraw.Draw(text_image_rotated)
+        text_draw_rotated.text((0, 0), text, font=load_font(config["FONT_TG_SIZE"], config["FONT_PATH"]), fill=config["COLOR_ROTATED_TEXT"])
+
+        rotated_text_image_offset = text_image_rotated.rotate(-30, expand=1)
+
+        # Координаты для вставки
+        rotated_text_x_1 = int(160)
+        rotated_text_x_2 = int(config["NEW_WIDTH"] - 221.38 - rotated_text_image_offset.width)
+
+        # Вставка повернутого текста
+        new_image.paste(rotated_text_image_offset, (rotated_text_x_1, int(y_offset)), rotated_text_image_offset)
+        new_image.paste(rotated_text_image_offset, (rotated_text_x_2, int(y_offset)), rotated_text_image_offset)
+
+def paste_images(new_image, img1, img2, top_padding):
+    """Вставляет изображения в новое изображение."""
+    y_offset = top_padding
+    left_offset = 49
+    new_image.paste(img1, (left_offset, y_offset), img1)
+    y_offset += img1.height
+
+    if img2:
+        new_image.paste(img2, (left_offset, y_offset), img2)
+
+def create_image_with_text(id_task, task_number, img1_path, output_path, config, img2_path=None):
+    logging.info(f'{img1_path}')
+    img1 = load_image_with_transparency(img1_path)
+    img2 = load_image_with_transparency(img2_path) if img2_path else None
+
+    input_height = calculate_new_height(img1, img2, config)
+    new_image, new_height = create_base_image(input_height, config)
+
+    draw = ImageDraw.Draw(new_image)
+    font_bot = load_font(config["FONT_BOT_SIZE"], config["FONT_PATH"])
+    font_number = load_font(config["FONT_NUMBER_SIZE"], config["FONT_PATH"])
+    font_tg = load_font(config["FONT_TG_SIZE"], config["FONT_PATH"])
+
+    logo_x = add_logo(new_image, new_height, config)
+    draw_text(draw, new_image, font_bot, font_number, font_tg, task_number, id_task, logo_x, new_height, config)
+
+    draw_rotated_text(draw, new_image, config["ROTATED_TEXT"], new_height, config)
+    paste_images(new_image, img1, img2, config["TOP_PADDING"])
+
+    new_image.save(output_path)
+    logging.info(f"Изображение сохранено: {output_path}")
 
     return output_path

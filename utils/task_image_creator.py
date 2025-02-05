@@ -1,106 +1,76 @@
-import logging
+import subprocess
 from utils.create_directory import create_directory, load_config
-import matplotlib.pyplot as plt
 import os
-import textwrap
-from utils.template_image_generator import build_final_image_from_template
+import logging
+from pdf2image import convert_from_path
+from utils.template_image_generator import create_image_with_text
+from PIL import Image
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def convert_latex_to_png(latex_text, image_width, template_path, output_path):
+    # Чтение шаблона из файла
+    with open(template_path, "r", encoding='utf-8') as template_file:
+        template_content = template_file.read()
 
-def fit_text_to_area(latex_text: str, initial_fontsize: float, area_width: float, area_height: float) -> (str, float):
-    # Начальные параметры
-    fontsize = initial_fontsize
-    max_attempts = 100  # Максимальное количество попыток уменьшения шрифта
-    attempts = 0
+    # Проверка на пустое содержимое latex_text
+    if not latex_text.strip():  # Если latex_text пустой или содержит только пробелы
+        logging.warning("LaTeX текст пуст. Сохраняем пустое изображение.")
+        # Сохранение пустого изображения
+        empty_image = Image.new("RGB", (image_width, 100), (255, 255, 255))
+        empty_image.save(output_path, 'PNG')
+        return
 
-    while attempts < max_attempts:
-        # Создание фигуры для проверки размера текста
-        fig, ax = plt.subplots(figsize=(area_width, area_height))
-        ax.axis('off')
+    # Создание LaTeX-документа
+    with open("filename.tex", "w", encoding='utf-8') as tex_file:
+        tex_file.write(template_content)  # Запись содержимого шаблона
+        tex_file.write(latex_text)  # Вставка текста из переменной
+        tex_file.write(r"\end{document}")  # Завершение документа
 
-        # Разделение текста на строки, чтобы сохранить существующие переносы
-        existing_lines = latex_text.splitlines()
-        wrapped_lines = []
+    # Компиляция LaTeX-документа в PDF
+    logging.info("Компиляция LaTeX-документа в PDF...")
+    result = subprocess.call(["pdflatex", "filename.tex"])
+    if result != 0:
+        logging.error("Ошибка при компиляции .tex в .pdf. Код ошибки: %d", result)
+        return
 
-        for line in existing_lines:
-            if line.strip():  # Если строка не пустая
-                # Обработка каждой непустой строки с учетом ширины
-                wrapped_lines.extend(textwrap.wrap(line, width=100))
-            else:
-                # Сохраняем пустую строку
-                wrapped_lines.append('')
+    # Применение pdfcrop к PDF
+    logging.info("Обрезка PDF...")
+    result = subprocess.call(["pdfcrop", "filename.pdf", "filename_cropped.pdf"])
+    if result != 0:
+        logging.error("Ошибка при обрезке PDF. Код ошибки: %d", result)
+        return
 
-        wrapped_text = '\n'.join(wrapped_lines)
+    # Конвертация обрезанного PDF в PNG с помощью pdf2image
+    pdf_file = "filename_cropped.pdf"
 
-        # Добавление текста
-        text_obj = ax.text(0, 0.5, wrapped_text, fontsize=fontsize, ha='left', va='center', wrap=True)
+    # Ограничение ширины изображения
+    logging.info("Конвертация PDF в PNG...")
+    images = convert_from_path(pdf_file, size=(image_width, None))  # Ограничиваем только ширину
 
-        # Получение размеров текста
-        fig.canvas.draw()
-        text_bbox = text_obj.get_window_extent(renderer=fig.canvas.get_renderer())
-        text_width, text_height = text_bbox.width / fig.dpi, text_bbox.height / fig.dpi
+    for i, image in enumerate(images):
+        image.save(output_path, 'PNG')
+        logging.info(f"Сохранено изображение: {output_path}")
 
-        # Проверка, помещается ли текст в заданную область
-        if text_width <= area_width and text_height <= area_height:
-            plt.close(fig)
-            return wrapped_text, fontsize  # Возвращаем текст и размер шрифта
+    # Удаление временных файлов
+    logging.info("Удаление временных файлов...")
+    try:
+        os.remove("filename.tex")
+        os.remove("filename.pdf")
+        os.remove("filename_cropped.pdf")
+        os.remove("filename.aux")
+        os.remove("filename.log")
+        logging.info("Временные файлы успешно удалены.")
+    except Exception as e:
+        logging.error("Ошибка при удалении временных файлов: %s", e)
 
-        # Уменьшаем размер шрифта и увеличиваем количество попыток
-        fontsize -= 1
-        attempts += 1
-        plt.close(fig)
-
-    # Если не удалось найти подходящий размер шрифта, возвращаем последний результат
-    return wrapped_text, fontsize
-
-
-def generate_latex_image(latex_text: str, output_path: str, filename: str, task_image: str = None, config: dict = None) -> str:
-    if config is None:
-        raise ValueError("Configuration dictionary must be provided.")
-
+def generate_latex_image(latex_text: str, output_path: str, filename: str, config) -> str:
     create_directory(output_path)
     file_path = os.path.join(output_path, filename)
 
-    # Настройка LaTeX
-    plt.rc('text', usetex=config['LATEX']['USE_TEX'])
-    plt.rc('font', family=config['LATEX']['FONT_FAMILY'])
-    plt.rc('text.latex', preamble=''.join(config['LATEX']['PREAMBLE']))
+    convert_latex_to_png(latex_text, config['WIDTH_LATEX_PNG'], config['LATEX_TEMPLATE_PATH'], file_path)
 
-    # Параметры изображения
-    if not task_image:
-        dpi = config['LATEX']['DPI']  # Точек на дюйм
-        fig_width = config['LATEX']['FIGURE_WIDTH'] / dpi  # Ширина в дюймах
-        fig_height = config['LATEX']['FIGURE_HEIGHT'] / dpi  # Высота в дюймах
-    else:
-        dpi = config['LATEX']['DPI']  # Точек на дюйм
-        fig_width = config['LATEX']['FIGURE_WIDTH'] / dpi / 2  # Ширина в дюймах
-        fig_height = config['LATEX']['FIGURE_HEIGHT'] / dpi  # Высота в дюймах
-
-    logging.info(f"Input text: {latex_text}")
-
-    #wrapped_text, fontsize = fit_text_to_area(latex_text, config['FONT_SIZE_NUMBER_FOR_TASK_TEXT'], fig_width, fig_height)
-    wrapped_text, fontsize = fit_text_to_area(latex_text, config['FONT_SIZE_NUMBER_FOR_TASK_TEXT'], fig_width, fig_height)
-
-    logging.info(f"Wrapped text: {wrapped_text} fontsize {fontsize}")
-
-    # Создание фигуры
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    fig.patch.set_facecolor('none')
-    ax.set_facecolor('none')
-    ax.axis('off')
-
-    # Добавление текста
-    ax.text(0, 0.5, wrapped_text, fontsize=fontsize, ha='left', va='center', wrap=True)
-
-    try:
-        plt.savefig(file_path, bbox_inches='tight', dpi=dpi, transparent=True)
-        plt.close(fig)
-    except Exception as e:
-        logging.error(f"Error during saving LaTeX image: {e}")
-
-    logging.info(f"Image saved at: {file_path}")
     return file_path
 
 
@@ -115,10 +85,9 @@ def generate_task_images_with_template(data: list[dict], dir_name: str, template
         # Генерируем изображения для текста задания
         task_image_path = generate_latex_image(record['task_text'], output_path,
                                                  generate_image_name_for_task_text(record['id']),
-                                                 task_image=record['task_image'],
-                                                 config=config)
+                                                 config)
 
-        record['photo_task'] = build_final_image_from_template(
+        record['photo_task'] = create_image_with_text(
                 record['id'],
                 record['task_number'],
                 task_image_path,
@@ -130,10 +99,9 @@ def generate_task_images_with_template(data: list[dict], dir_name: str, template
         # Генерируем изображения для решения задания
         solution_image_path = generate_latex_image(record['task_solution'], output_path,
                                                     generate_image_name_for_task_solution(record['id']),
-                                                    config=config
-                                                    )
+                                                    config)
 
-        record['photo_solution'] = build_final_image_from_template(
+        record['photo_solution'] = create_image_with_text(
                 record['id'],
                 record['task_number'],
                 solution_image_path,
