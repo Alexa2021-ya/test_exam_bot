@@ -14,13 +14,14 @@
     "FONT_PATH": "C:/Users/User/Desktop/Папка/bot_ege/resources/fonts/Inter-ExtraBold.ttf",
     "FONT_BOT_SIZE": 48,
     "FONT_NUMBER_SIZE": 96,
-    "FONT_TG_SIZE": 40,
+    "FONT_TG_NAME_SIZE": 40,
     "COLOR_TITLE": "#67A9FF",
     "COLOR_ID": "#67A9FF",
-    "COLOR_ROTATED_TEXT": "#8EB9DB33",
+    "COLOR_TG_NAME_TEXT": "#67A9FF",
+    "COLOR_TG_NAME_ROTATED_TEXT": "#8EB9DB33",
     "LOGO_PATH": "C:/Users/User/Desktop/Папка/bot_ege/resources/logo.png",
     "TITLE_TEXT": "БОТ-ТРЕНАЖЁР | ЕГЭ МАТЕМАТИКА",
-    "ROTATED_TEXT": "t.me/uhg_bot",
+    "TG_NAME_TEXT": "t.me/math1ege_bot",
     "LATEX_TEMPLATE_PATH": "C:/Users/User/Desktop/Папка/bot_ege/resources/latex_template.tex",
     "WIDTH_LATEX_PNG": 1200
   }

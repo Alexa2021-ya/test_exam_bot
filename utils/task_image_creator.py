@@ -37,7 +37,7 @@ def convert_latex_to_png(latex_text, image_width, template_path, output_path):
 
     # Применение pdfcrop к PDF
     logging.info("Обрезка PDF...")
-    result = subprocess.call(["pdfcrop", "filename.pdf", "filename_cropped.pdf"])
+    result = subprocess.call(["pdfcrop", "--margins", "10 10 10 10", "filename.pdf", "filename_cropped.pdf"])
     if result != 0:
         logging.error("Ошибка при обрезке PDF. Код ошибки: %d", result)
         return
