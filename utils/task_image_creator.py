@@ -25,6 +25,7 @@ def convert_latex_to_png(latex_text, image_width, template_path, output_path):
     # Создание LaTeX-документа
     with open("filename.tex", "w", encoding='utf-8') as tex_file:
         tex_file.write(template_content)  # Запись содержимого шаблона
+        tex_file.write(r"\footnotesize")  # Уменьшение размера шрифта
         tex_file.write(latex_text)  # Вставка текста из переменной
         tex_file.write(r"\end{document}")  # Завершение документа
 
@@ -37,7 +38,7 @@ def convert_latex_to_png(latex_text, image_width, template_path, output_path):
 
     # Применение pdfcrop к PDF
     logging.info("Обрезка PDF...")
-    result = subprocess.call(["pdfcrop", "--margins", "10 10 10 10", "filename.pdf", "filename_cropped.pdf"])
+    result = subprocess.call(["pdfcrop", "--margins", "0 10 0 10", "filename.pdf", "filename_cropped.pdf"])
     if result != 0:
         logging.error("Ошибка при обрезке PDF. Код ошибки: %d", result)
         return

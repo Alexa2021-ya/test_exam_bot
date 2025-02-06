@@ -28,7 +28,7 @@ def calculate_new_height(img1, img2=None, config=None):
     """Вычисляет новую высоту изображения с учетом отступов."""
     input_height = img1.height
     if img2:
-        input_height += img2.height
+        input_height += img2.height + 20
     return max(input_height, config["MIN_HEIGHT"] - config["TOP_PADDING"] - config["BOTTOM_PADDING"])
 
 def create_base_image(input_height, config):
@@ -79,14 +79,22 @@ def draw_rotated_text(draw, new_image, text, new_height, config, horizontal_spac
 
 
 def paste_images(new_image, img1, img2, top_padding):
-    """Вставляет изображения в новое изображение."""
+    """Вставляет изображения в новое изображение с отступами."""
     y_offset = top_padding
-    left_offset = 49
-    new_image.paste(img1, (left_offset, y_offset), img1)
+    left_offset_img1 = 49
+    left_offset_img2 = 49
+
+    # Вставляем первое изображение
+    new_image.paste(img1, (left_offset_img1, y_offset), img1)
     y_offset += img1.height
 
+    # Если есть второе изображение, вставляем его
     if img2:
-        new_image.paste(img2, (left_offset, y_offset), img2)
+        y_offset += 10  # Добавляем отступ в 10 пикселей перед вторым изображением
+        new_image.paste(img2, (left_offset_img2, y_offset), img2)
+    else:
+        y_offset += 10  # Добавляем отступ в 10 пикселей, если второго изображения нет
+
 
 def draw_tg_name_text(draw, new_image, text, config, new_height):
     """Рисует текст TG_NAME_TEXT на новом изображении."""
