@@ -5,11 +5,18 @@ import logging
 from pdf2image import convert_from_path
 from utils.template_image_generator import create_image_with_text
 from PIL import Image
+import re
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def convert_latex_to_png(latex_text, image_width, template_path, output_path):
+    # Удаление пробелов и переносов строк внутри конструкций \[\] в latex_text
+    latex_text = re.sub(r'\\\[(.*?)\\\]',
+                         lambda m: f'\\[{re.sub(r"\\s+", "", m.group(1))}\\]',
+                         latex_text,
+                         flags=re.DOTALL)
+
     # Чтение шаблона из файла
     with open(template_path, "r", encoding='utf-8') as template_file:
         template_content = template_file.read()
@@ -23,6 +30,7 @@ def convert_latex_to_png(latex_text, image_width, template_path, output_path):
         return
 
     # Создание LaTeX-документа
+    latex_text = latex_text.replace('\n', '')  # Удаление переносов строк вне конструкции
     with open("filename.tex", "w", encoding='utf-8') as tex_file:
         tex_file.write(template_content)  # Запись содержимого шаблона
         tex_file.write(r"\footnotesize")  # Уменьшение размера шрифта
