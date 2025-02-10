@@ -76,8 +76,6 @@ def draw_rotated_text(draw, new_image, text, new_height, config, horizontal_spac
         new_image.paste(rotated_text_image_offset, (rotated_text_x_1, int(y_offset)), rotated_text_image_offset)
         new_image.paste(rotated_text_image_offset, (rotated_text_x_2 + horizontal_spacing, int(y_offset)), rotated_text_image_offset)
 
-
-
 def paste_images(new_image, img1, img2, top_padding):
     """Вставляет изображения в новое изображение с отступами."""
     y_offset = top_padding
@@ -95,7 +93,6 @@ def paste_images(new_image, img1, img2, top_padding):
     else:
         y_offset += 10  # Добавляем отступ в 10 пикселей, если второго изображения нет
 
-
 def draw_tg_name_text(draw, new_image, text, config, new_height):
     """Рисует текст TG_NAME_TEXT на новом изображении."""
     font_tg_name = load_font(config["FONT_TG_NAME_SIZE"], config["FONT_PATH"])  # Предположим, что у вас есть размер шрифта для TG_NAME_TEXT
@@ -108,7 +105,7 @@ def draw_tg_name_text(draw, new_image, text, config, new_height):
 
     draw.text((text_x, text_y), text, font=font_tg_name, fill=config["COLOR_TG_NAME_TEXT"])  # Предположим, что у вас есть цвет для TG_NAME_TEXT
 
-def create_image_with_text(id_task, task_number, img1_path, output_path, config, img2_path=None):
+async def create_image_with_text(id_task, task_number, img1_path, output_path, config, img2_path=None):
     logging.info(f'{img1_path}')
     img1 = load_image_with_transparency(img1_path)
     img2 = load_image_with_transparency(img2_path) if img2_path else None
